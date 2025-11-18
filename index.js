@@ -21,20 +21,19 @@ morgan.token('body', (req) => {
 });
 
 app.use(
-  morgan(
-    ':method :url :status :res[content-length] - :response-time ms :body'
-  )
+  morgan(':method :url :status :res[content-length] - :response-time ms :body')
 );
 
 // ---------- Request Logger ----------
-const requestLogger = (request, response, next) => {
-  console.log('Method', request.method);
-  console.log('Path', request.path);
-  console.log('Body', request.body);
+const requestLogger = (req, res, next) => {
+  console.log('Method', req.method);
+  console.log('Path', req.path);
+  console.log('Body', req.body);
   console.log('♡⸜(˶˃ ᵕ ˂˶)⸝♡');
   // next() so that the middleware won't hang
   next();
 };
+app.use(requestLogger);
 
 // ---------- Serving static files  ----------
 app.use(express.static('dist'));
@@ -47,37 +46,26 @@ app.use(express.static('dist'));
 // * Handling requests — START
 // ==============================
 
-// ---------- Root entry ----------
-app.get('/', (request, response) => {
-  response.send('<h1>Hello!</h1>');
-});
-
 // ---------- Get Data ----------
-app.get('/api/persons', (request, response) => {
-  response.json(persons);
+app.get('/api/persons', (req, res) => {
+  Contact.find({}).then((contacts) => res.json(contacts));
 });
 
 // ---------- General info ----------
-app.get('/info', (request, response) => {
+app.get('/info', (req, res) => {
   const timestamp = new Date().toString();
-  const count = persons.length;
-  //   console.log(count);
-
-  response.send(`
-                <p>Phone book has info of ${count} people</p>
+  Contact.find({}).then((contacts) => {
+    res.send(`
+                <p>Phone book has info of ${contacts.length} people</p>
                 <p>${timestamp}</p>
                 `);
+  });
 });
 
 // ---------- Display the information for a single phone book entry ----------
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (req, res) => {
   //https://expressjs.com/en/5x/api.html#req.params
-  const id = request.params.id;
-  const person = persons.find((z) => z.id === id);
-
-  if (!person)
-    return response.status(404).json({ error: 'not found' });
-  else response.json(person);
+  Contact.findById(req.params.id).then((contact) => res.json(contact));
 });
 
 // ---------- Delete a single phone book entry ----------
@@ -92,33 +80,24 @@ app.delete('/api/persons/:id', (req, res) => {
 });
 
 // ---------- Add new entries ----------
-const generateId = () =>
-  String(Math.floor(Math.random() * Date.now()));
-
 app.post('/api/persons', (req, res) => {
   // console.log(req.body);
   const body = req.body;
-  if (!body)
-    return res.status(400).json({ error: 'content missing.' });
+  if (!body) return res.status(400).json({ error: 'content missing.' });
 
-  if (!body.name)
-    return res.status(400).json({ error: 'name missing' });
+  if (!body.name) return res.status(400).json({ error: 'name missing' });
 
-  if (persons.find((person) => person.name === body.name))
-    return res.status(400).json({ error: 'name must be unique' });
+  // if (persons.find((person) => person.name === body.name))
+  //   return res.status(400).json({ error: 'name must be unique' });
 
-  if (!body.number)
-    return res.status(400).json({ error: 'number missing' });
+  if (!body.number) return res.status(400).json({ error: 'number missing' });
 
-  const person = {
-    id: generateId(),
+  const contact = new Contact({
     name: body.name,
     number: body.number,
-  };
+  });
 
-  persons = [...persons, person];
-
-  res.json(person);
+  contact.save().then((savedContact) => res.json(savedContact));
 });
 
 // ==============================
@@ -129,5 +108,3 @@ const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-// Connect to the DB

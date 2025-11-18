@@ -21,5 +21,14 @@ const contactSchema = new mongoose.Schema({
   number: String,
 });
 
+// Format the returned data to be prettier
+contactSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
+  },
+});
+
 // Export the compiled model
 module.exports = mongoose.model('Contact', contactSchema);
