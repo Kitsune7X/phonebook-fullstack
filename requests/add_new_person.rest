@@ -1,0 +1,35 @@
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+ "number": "999011-222333" 
+}
+
+###
+
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+ "name": "Leon S. Kenedy" 
+}
+
+###
+
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+ "name": "Leon S. Kenedy",
+ "number": "090-1200-4581 "
+}
+
+###
+
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+ "name": "Leon S. Kenedy",
+ "number": "090-1200-4281 "
+}
