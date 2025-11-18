@@ -70,10 +70,12 @@ app.get('/api/persons/:id', (req, res) => {
 
 // ---------- Delete a single phone book entry ----------
 app.delete('/api/persons/:id', (req, res, next) => {
-  Contact.findByIdAndDelete(req.params.id).then((result) => {
-    console.log(result);
-    res.json(result);
-  });
+  Contact.findByIdAndDelete(req.params.id)
+    .then((result) => {
+      console.log(result);
+      res.json(result);
+    })
+    .catch((error) => next(error));
 });
 
 // ---------- Add new entries ----------
@@ -94,14 +96,37 @@ app.post('/api/persons', (req, res) => {
   contact.save().then((savedContact) => res.json(savedContact));
 });
 
+// ---------- Updating number ----------
+// The request will be made only when the condition satisfies
+app.put('/api/persons/:id', (req, res, next) => {
+  // https://medium.com/@findingalberta/what-the-fffff-findbyidandupdate-mongoose-107219d5f90
+  Contact.findByIdAndUpdate(req.params.id, req.body, { new: true })
+    .then((result) => {
+      console.log(result);
+      res.json(result);
+    })
+    .catch((err) => next(err));
+});
+
 // ==============================
 // * Handling requests — END
 // ==============================
+
+// ---------- Error Handling ----------
+const errorHandler = (err, req, res, next) => {
+  console.log(err.message);
+
+  if (err.name === 'CastError')
+    return res.status(400).send({ error: 'malformatted id' });
+
+  next(err);
+};
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-// Delete phone book entries is reflected in the database
-// Move the error handling of the application to a new error handler middleware
+// Implement backend for updating number
