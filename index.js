@@ -99,6 +99,7 @@ app.post('/api/persons', (req, res) => {
 // ---------- Updating number ----------
 // The request will be made only when the condition satisfies
 app.put('/api/persons/:id', (req, res, next) => {
+  // WTF, really
   // https://medium.com/@findingalberta/what-the-fffff-findbyidandupdate-mongoose-107219d5f90
   Contact.findByIdAndUpdate(req.params.id, req.body, { new: true })
     .then((result) => {
