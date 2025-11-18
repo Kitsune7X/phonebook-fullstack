@@ -69,14 +69,11 @@ app.get('/api/persons/:id', (req, res) => {
 });
 
 // ---------- Delete a single phone book entry ----------
-app.delete('/api/persons/:id', (req, res) => {
-  const id = req.params.id;
-  // Find the contact that need to be deleted
-  const person = persons.find((z) => z.id === id);
-  // Filter out the list
-  persons = persons.filter((z) => z.id !== id);
-  // Response the person so that the list get updated
-  res.json(person);
+app.delete('/api/persons/:id', (req, res, next) => {
+  Contact.findByIdAndDelete(req.params.id).then((result) => {
+    console.log(result);
+    res.json(result);
+  });
 });
 
 // ---------- Add new entries ----------
@@ -86,9 +83,6 @@ app.post('/api/persons', (req, res) => {
   if (!body) return res.status(400).json({ error: 'content missing.' });
 
   if (!body.name) return res.status(400).json({ error: 'name missing' });
-
-  // if (persons.find((person) => person.name === body.name))
-  //   return res.status(400).json({ error: 'name must be unique' });
 
   if (!body.number) return res.status(400).json({ error: 'number missing' });
 
@@ -108,3 +102,6 @@ const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+// Delete phone book entries is reflected in the database
+// Move the error handling of the application to a new error handler middleware
