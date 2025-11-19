@@ -79,12 +79,9 @@ app.delete('/api/persons/:id', (req, res, next) => {
 });
 
 // ---------- Add new entries ----------
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
   // console.log(req.body);
   const body = req.body;
-  if (!body) return res.status(400).json({ error: 'content missing.' });
-
-  if (!body.name) return res.status(400).json({ error: 'name missing' });
 
   if (!body.number) return res.status(400).json({ error: 'number missing' });
 
@@ -93,15 +90,21 @@ app.post('/api/persons', (req, res) => {
     number: body.number,
   });
 
-  contact.save().then((savedContact) => res.json(savedContact));
+  contact
+    .save()
+    .then((savedContact) => res.json(savedContact))
+    .catch((err) => next(err));
 });
 
 // ---------- Updating number ----------
 // The request will be made only when the condition satisfies
 app.put('/api/persons/:id', (req, res, next) => {
+  // Turn `validator` on for
+  const opts = { runValidators: true };
+
   // WTF, really
   // https://medium.com/@findingalberta/what-the-fffff-findbyidandupdate-mongoose-107219d5f90
-  Contact.findByIdAndUpdate(req.params.id, req.body, { new: true })
+  Contact.findByIdAndUpdate(req.params.id, req.body, { new: true }, opts)
     .then((result) => {
       console.log(result);
       res.json(result);
@@ -118,7 +121,9 @@ const errorHandler = (err, req, res, next) => {
   console.log(err.message);
 
   if (err.name === 'CastError')
-    return res.status(400).send({ error: 'malformatted id' });
+    return res.status(400).send({ error: 'malformed id' });
+  else if (err.name === 'ValidationError')
+    return res.status(400).json({ error: err.message });
 
   next(err);
 };
