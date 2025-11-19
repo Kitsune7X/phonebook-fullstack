@@ -22,7 +22,13 @@ const contactSchema = new mongoose.Schema({
     minLength: 3,
     required: true,
   },
-  number: String,
+  number: {
+    type: String,
+    validate: {
+      validator: (v) => /\d{2,3}-\d{5,}/.test(v), // '/' are escape, between that is regex
+    },
+    message: (props) => `${props.value} is not a valid phone number!`,
+  },
 });
 
 // Format the returned data to be prettier

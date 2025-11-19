@@ -83,8 +83,6 @@ app.post('/api/persons', (req, res, next) => {
   // console.log(req.body);
   const body = req.body;
 
-  if (!body.number) return res.status(400).json({ error: 'number missing' });
-
   const contact = new Contact({
     name: body.name,
     number: body.number,
@@ -99,7 +97,7 @@ app.post('/api/persons', (req, res, next) => {
 // ---------- Updating number ----------
 // The request will be made only when the condition satisfies
 app.put('/api/persons/:id', (req, res, next) => {
-  // Turn `validator` on for
+  // Turn `validator` on
   const opts = { runValidators: true };
 
   // WTF, really
