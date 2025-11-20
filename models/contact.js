@@ -10,7 +10,7 @@ console.log('Connecting to', url);
 // Connect to the Matrix (MongoDB)
 mongoose
   .connect(url, { family: 4 })
-  .then((result) => console.log('Connected to the Matrix'))
+  .then((_result) => console.log('Connected to the Matrix'))
   .catch((error) =>
     console.log('Error connecting to the Matrix', error.message)
   );
