@@ -97,11 +97,11 @@ app.post('/api/persons', (req, res, next) => {
 // ---------- Updating number ----------
 // The request will be made only when the condition satisfies
 app.put('/api/persons/:id', (req, res, next) => {
-  // Turn `validator` on
-  const opts = { runValidators: true };
-
   // https://medium.com/@findingalberta/what-the-fffff-findbyidandupdate-mongoose-107219d5f90
-  Contact.findByIdAndUpdate(req.params.id, req.body, { new: true }, opts)
+  Contact.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  })
     .then((result) => {
       console.log(result);
       res.json(result);
